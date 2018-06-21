@@ -22,7 +22,7 @@ nombre text,
 domicilio text,
 codigopostal char(8),
 telefono char(12)
-):
+);
 
 create table compra(
 nrooperacion int,
