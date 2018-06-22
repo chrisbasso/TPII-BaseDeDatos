@@ -8,6 +8,7 @@ import (
 	"runtime"
 	"time"
 
+	"io/ioutil"
 )
 
 var clear map[string]func() //create a map for storing clear funcs
@@ -97,6 +98,22 @@ func main() {
 	}
 }
 
+func crearTablas(){
+
+	datos, errorDeLectura := ioutil.ReadFile("tablas.sql")
+	mostrarError(errorDeLectura)
+	fmt.Println(string(datos))
+
+}
+
+func establecerPKyFK(){
+
+	datos, errorDeLectura := ioutil.ReadFile("PK y FK.sql")
+	mostrarError(errorDeLectura)
+	fmt.Println(string(datos))
+
+}
+
 func menu(){
 
 
@@ -127,4 +144,10 @@ func menu(){
 	fmt.Println("-----------------------------------------------------")
 
 
+}
+
+func mostrarError(e error) {
+	if e != nil{
+		panic(e)
+	}
 }
