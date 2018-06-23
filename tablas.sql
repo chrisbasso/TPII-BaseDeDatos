@@ -31,6 +31,7 @@ nrocomercio int,
 fecha timestamp,
 monto decimal(7,2),
 pagado boolean
+
 );
 
 create table rechazo(
