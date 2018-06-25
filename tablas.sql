@@ -25,7 +25,7 @@ telefono char(12)
 );
 
 create table compra(
-nrooperacion int,
+nrooperacion serial,
 nrotarjeta char(12),
 nrocomercio int,
 fecha timestamp,
@@ -35,7 +35,7 @@ pagado boolean
 );
 
 create table rechazo(
-nrorechazo int,
+nrorechazo serial,
 nrotarjeta char(12),
 nrocomercio int,
 fecha timestamp,
@@ -53,7 +53,7 @@ fechavto date
 );
 
 create table cabecera (
-nroresumen int,
+nroresumen serial,
 nombre text,
 apellido text,
 domicilio text,
