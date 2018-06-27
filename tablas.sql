@@ -73,7 +73,7 @@ monto decimal(7,2)
 );
 
 create table alerta (
-nroalerta int,
+nroalerta serial,
 nrotarjeta char(12),
 fecha timestamp,
 nrorechazo int,
