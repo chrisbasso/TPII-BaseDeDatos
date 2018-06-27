@@ -14,7 +14,7 @@ declare
 
 begin
  
-    RAISE NOTICE 'Se invoca función autorizacion_compra';
+    
 
     SELECT t.nrotarjeta, t.validahasta, t.codseguridad, t.limitecompra, t.estado
     INTO vNroTarjeta, vValidaHasta, vCodSeguridad, vLimiteCompra, vEstado
