@@ -5,12 +5,9 @@ import (
 	"fmt"
 
 )
-func main(){
-	
-}
 
 
-func mostrarMenu(){
+func MostrarMenu(){
 
 
 
