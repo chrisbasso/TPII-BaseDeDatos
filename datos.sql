@@ -56,12 +56,12 @@ insert into tarjeta values(479110600471, 13439, '201708', '201908', '6524', 3400
 insert into tarjeta values(485834874942, 36365, '201607', '201907', '1505', 50000.00, 'vigente');
 insert into tarjeta values(437434819262, 97565, '201605', '201905', '9076', 48000.00, 'vigente');
 insert into tarjeta values(400877394804, 65477, '201702', '202002', '3791', 49000.00, 'vigente');
-insert into tarjeta values(488207236937, 86202, '201705', '201905', '2650', 35000.00, 'vigente');
+insert into tarjeta values(488207236937, 86202, '201705', '201905', '2650', 35000.00, 'suspendida');
 insert into tarjeta values(437501035853, 27336, '201312', '201712', '8764', 38000.00, 'anulada');
-insert into tarjeta values(498539870963, 54976, '201710', '202010', '3951', 29000.00, 'vigente'); -- de Daniela Cano
-insert into tarjeta values(426914694871, 54976, '201611', '201911', '7035', 34900.00, 'vigente'); -- de Daniela Cano
-insert into tarjeta values(457105551649, 00001, '201612', '201912', '1904', 60000.00, 'vigente'); -- de Lucas Lugo
-insert into tarjeta values(425311796515, 00001, '201802', '202102', '7361', 30000.00, 'vigente'); -- de Lucas Lugo
+insert into tarjeta values(498539870963, 54976, '201710', '202010', '3951', 29000.00, 'vigente');
+insert into tarjeta values(426914694871, 54976, '201611', '201911', '7035', 34900.00, 'vigente'); 
+insert into tarjeta values(457105551649, 00001, '201612', '201912', '1904', 60000.00, 'vigente'); 
+insert into tarjeta values(425311796515, 00001, '201802', '202102', '7361', 30000.00, 'vigente'); 
 
 
 
