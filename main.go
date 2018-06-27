@@ -10,13 +10,11 @@ import (
 	"database/sql"
 	_ "github.com/lib/pq"
 	"log"
-
 	"io/ioutil"
+	_ "./menu"
 )
-type cliente struct {
-	nombre string
-	apellido string
-	}
+
+
 
 var clear map[string]func() //create a map for storing clear funcs
 
@@ -57,9 +55,14 @@ func main() {
 	}
 	defer db.Close()
 
+	
+
 	time.Sleep(1 * time.Second)
 	CallClear()
-	menu()
+
+	
+	
+	menu.MostrarMenu()
 
 	
 
@@ -77,7 +80,7 @@ func main() {
 			mostrarError(err)
 			time.Sleep(2 * time.Second)
 			CallClear()
-			menu()
+			menu.MostrarMenu()
 		}
 		if input == "2"{
 			fmt.Println("")
@@ -86,7 +89,7 @@ func main() {
 			mostrarError(err)
 			time.Sleep(2 * time.Second)
 			CallClear()
-			menu()
+			menu.MostrarMenu()
 		}
 		if input == "3"{
 			fmt.Println("")
@@ -95,7 +98,7 @@ func main() {
 			mostrarError(err)
 			time.Sleep(2 * time.Second)
 			CallClear()
-			menu()
+			menu.MostrarMenu()
 		}
 
 		if input == "4"{
@@ -105,7 +108,7 @@ func main() {
 			mostrarError(err)
 			time.Sleep(2 * time.Second)
 			CallClear()
-			menu()
+			menu.MostrarMenu()
 		}
 		if input == "5"{
 			fmt.Println("")
@@ -127,7 +130,7 @@ func main() {
 			}
 			time.Sleep(5 * time.Second)
 			CallClear()
-			menu()
+			menu.MostrarMenu()
 		}
 		if input == "6"{
 			fmt.Println("")
@@ -152,7 +155,7 @@ func main() {
 			}
 			time.Sleep(5 * time.Second)
 			CallClear()
-			menu()
+			menu.MostrarMenu()
 		}
 		if input == "7"{
 			fmt.Println("")
@@ -179,7 +182,7 @@ func main() {
 			}
 			time.Sleep(5 * time.Second)
 			CallClear()
-			menu()
+			menu.MostrarMenu()
 		}
 		
 		if input == "8"{
@@ -205,7 +208,7 @@ func main() {
 			}
 			time.Sleep(5 * time.Second)
 			CallClear()
-			menu()
+			menu.MostrarMenu()
 		}
 		
 		if input == "9"{
@@ -232,7 +235,7 @@ func main() {
 			}
 			time.Sleep(5 * time.Second)
 			CallClear()
-			menu()
+			menu.MostrarMenu()
 		}
 		
 		if input == "10"{
@@ -260,19 +263,18 @@ func main() {
 			}
 			time.Sleep(5 * time.Second)
 			CallClear()
-			menu()
+			menu.MostrarMenu()
 		}
 		if input == "11"{
 			fmt.Println("")
 			fmt.Println("COMPRA AUTORIZADA")
 			fmt.Println("")
 			
-			rows, err := db.Query("SELECT autorizarCompra('475913199634','2516',3050,111.00);")
+			_, err := db.Query(`SELECT autorizarCompra('475913199634','2516',111.00,3050);`)
 			mostrarError(err)
-			defer rows.Close()
 			time.Sleep(2 * time.Second)
 			CallClear()
-			menu()
+			menu.MostrarMenu()
 		}
 
 	}
@@ -315,7 +317,7 @@ func cargarFunciones() string{
 
 }
 
-
+/*
 func menu(){
 
 
@@ -349,6 +351,7 @@ func menu(){
 
 
 }
+*/
 
 func mostrarError(e error) {
 	if e != nil{
