@@ -1,4 +1,4 @@
-create or replace function autorizarCompra(numtarjeta character, codseguridad character, montoCompra numeric, numcomercio int) returns boolean as $$
+create or replace function autorizarCompra(numtarjeta char(12), codseguridad char(4), montoCompra numeric, numcomercio int) returns boolean as $$
 
 declare
 
@@ -77,9 +77,7 @@ create or replace function generarFactura(numcliente int, periodo date) returns 
 
 declare
     
-     --nombre
---y apellido, dirección, número de tarjeta, periodo del resumen, fecha de vencimiento,
---todas las compras del periodo, y total a pagar.
+
 
     vNombre text;
     vApellido text;
@@ -96,7 +94,7 @@ declare
     lista_tarjetas char(12)[] = (SELECT ARRAY (SELECT nrotarjeta FROM tarjeta WHERE nrocliente = numcliente));
     numeroT char(12);
     vNumeroLinea int = 0;
-    --vCompras record[];
+
     vCompra record;
     vNroResumen int;
 
@@ -161,11 +159,104 @@ begin
 
     end loop;
 
-    
-
 
 
 end;
 $$ language plpgsql;
+
+create or replace function alerta_rechazo() returns trigger as $$
+
+declare
+
+    rechazoAnt record;
+
+
+begin
+    
+
+	
+	insert into alerta (nrotarjeta,fecha, nrorechazo, codalerta, descripcion) values (new.nrotarjeta, new.fecha, new.nrorechazo, 0, new.motivo);
+	
+    SELECT * INTO rechazoAnt FROM rechazo
+    WHERE rechazo.nrotarjeta = new.nrotarjeta
+    AND cast(new.fecha as date) = cast(rechazo.fecha as date);
+
+   
+    IF FOUND THEN
+		
+        insert into alerta (nrotarjeta,fecha, nrorechazo, codalerta, descripcion) 
+        values (new.nrotarjeta, new.fecha, new.nrorechazo, 32, 'Tarjeta suspendida por exceso de límite en el mismo día');
+
+        update tarjeta set estado='suspendida' where nrotarjeta = new.nrotarjeta;
+	
+	END IF;
+
+
+
+    return new;
+
+end;
+
+$$ language plpgsql;
+
+create trigger alerta_rechazo_trg
+after insert
+on rechazo
+for each row
+execute procedure alerta_rechazo();
+
+create or replace function alerta_compra() returns trigger as $$
+
+declare
+
+    compraAnt record;
+    compraAnt2 record;
+
+begin
+
+    SELECT * INTO compraAnt FROM compra, comercio WHERE compra.nrocomercio = comercio.nrocomercio
+    AND compra.fecha > CURRENT_TIMESTAMP - (1 * interval '1 minute')
+	AND compra.nrotarjeta = new.nrotarjeta
+	AND compra.nrocomercio <> new.nrocomercio
+	AND comercio.codigopostal = (SELECT codigopostal FROM comercio WHERE nrocomercio = new.nrocomercio);
+
+    IF FOUND THEN
+
+        insert into alerta (nrotarjeta,fecha, codalerta, descripcion) 
+        values (new.nrotarjeta, new.fecha, 1, 'Dos compras en menos de un minuto');
+
+    END IF;
+
+    SELECT * INTO compraAnt2 FROM compra, comercio WHERE compra.nrocomercio = comercio.nrocomercio
+    AND compra.fecha > CURRENT_TIMESTAMP - (5 * interval '1 minute')
+	AND compra.nrotarjeta = new.nrotarjeta
+	AND compra.nrocomercio <> new.nrocomercio
+	AND comercio.codigopostal <> (SELECT codigopostal FROM comercio WHERE nrocomercio = new.nrocomercio);
+
+    IF FOUND THEN
+
+        insert into alerta (nrotarjeta,fecha, codalerta, descripcion) 
+        values (new.nrotarjeta, new.fecha, 5, 'Dos compras en CP diferentes');
+
+    END IF;
+
+    
+    return new;
+
+end;
+
+$$ language plpgsql;
+
+create trigger alerta_compra_trg
+after insert
+on compra
+for each row
+execute procedure alerta_compra();
+
+
+
+
+
+
 
 
