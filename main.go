@@ -11,9 +11,8 @@ import (
 	_ "github.com/lib/pq"
 	"log"
 	"io/ioutil"
-	_ "./menu"
+	"./menu"
 )
-
 
 
 var clear map[string]func() //create a map for storing clear funcs
@@ -43,7 +42,7 @@ func CallClear() {
 const (
 	DB_USER = "postgres"
 	DB_PASSWORD = "postgres"
-	DB_NAME = "prueba5"
+	DB_NAME = "prueba6"
 )
 
 func main() {
@@ -55,12 +54,8 @@ func main() {
 	}
 	defer db.Close()
 
-	
-
 	time.Sleep(1 * time.Second)
 	CallClear()
-
-	
 	
 	menu.MostrarMenu()
 
@@ -70,7 +65,7 @@ func main() {
 
 	for scanner.Scan() {
 		input := scanner.Text()
-		if input == "15" {
+		if input == "19" {
 			os.Exit(0)
 		}
 		if input == "1"{
@@ -269,13 +264,75 @@ func main() {
 			fmt.Println("")
 			fmt.Println("COMPRA AUTORIZADA")
 			fmt.Println("")
-			
 			_, err := db.Query(`SELECT autorizarCompra('475913199634','2516',111.00,3050);`)
 			mostrarError(err)
 			time.Sleep(2 * time.Second)
 			CallClear()
 			menu.MostrarMenu()
 		}
+		if input == "12"{
+			fmt.Println("")
+			fmt.Println("COMPRA CON TARJETA ANULADA")
+			fmt.Println("")
+			_, err := db.Query(`SELECT autorizarCompra('437501035853','8764',1810.00,4040);`)
+			mostrarError(err)
+			time.Sleep(2 * time.Second)
+			CallClear()
+			menu.MostrarMenu()
+		}
+		if input == "13"{
+			fmt.Println("")
+			fmt.Println("COMPRA CON TARJETA SUSPENDIDA")
+			fmt.Println("")
+			_, err := db.Query(`SELECT autorizarCompra('488207236937','2650',230.00,3050);`)
+			mostrarError(err)
+			time.Sleep(2 * time.Second)
+			CallClear()
+			menu.MostrarMenu()
+		}
+		if input == "14"{
+			fmt.Println("")
+			fmt.Println("COMPRA SUPERANDO LIMITE")
+			fmt.Println("")
+			_, err := db.Query(`SELECT autorizarCompra('485834874942','1505',60000.00,3050);`)
+			mostrarError(err)
+			time.Sleep(2 * time.Second)
+			CallClear()
+			menu.MostrarMenu()
+		}
+		if input == "15"{
+			fmt.Println("")
+			fmt.Println("DOS COMPRAS EN MISMO CP EN MENOS DE 1 MINUTO")
+			fmt.Println("")
+			time.Sleep(2 * time.Second)
+			_, err := db.Query(`SELECT autorizarCompra('489419235332','5820',2000,9604);`)
+			mostrarError(err)
+			fmt.Println("PRIMERA COMPRA REALIZADA")
+			time.Sleep(3 * time.Second)
+			_, err2 := db.Query(`SELECT autorizarCompra('489419235332','5820',100,3050);`)
+			mostrarError(err2)
+			fmt.Println("SEGUNDA COMPRA REALIZADA")
+			time.Sleep(3 * time.Second)
+			CallClear()
+			menu.MostrarMenu()
+		}
+		if input == "16"{
+			fmt.Println("")
+			fmt.Println("DOS COMPRAS EN DISTINTO CP EN MENOS DE 5 MINUTOS")
+			fmt.Println("")
+			time.Sleep(2 * time.Second)
+			_, err := db.Query(`SELECT autorizarCompra('489419235332','5820',100,3050);`)
+			mostrarError(err)
+			fmt.Println("PRIMERA COMPRA REALIZADA")
+			time.Sleep(3 * time.Second)
+			_, err2 := db.Query(`SELECT autorizarCompra('489419235332','5820',100,4040);`)
+			mostrarError(err2)
+			fmt.Println("SEGUNDA COMPRA REALIZADA")
+			time.Sleep(3 * time.Second)
+			CallClear()
+			menu.MostrarMenu()
+		}
+
 
 	}
 	if err := scanner.Err(); err != nil {
@@ -316,42 +373,6 @@ func cargarFunciones() string{
 	return ret
 
 }
-
-/*
-func menu(){
-
-
-
-	fmt.Println("")
-	fmt.Println("             \x1b[32;1m  --BASE DE DATOS TARJETAS--\x1b[0m")
-	fmt.Println("")
-	fmt.Println("")
-	fmt.Println("  * * * * * * * * * * * * * * * * * * * * * * * * * * *")
-	fmt.Println("  *                                                   *")
-	fmt.Println("  *  \x1b[33;1m01 - CREAR TABLAS\x1b[0m                                *")
-	fmt.Println("  *  \x1b[33;1m02 - ESTABLECER PKs y FKs\x1b[0m                        *")
-	fmt.Println("  *  \x1b[33;1m03 - CARGAR FUNCIONES\x1b[0m                            *")
-	fmt.Println("  *  \x1b[33;1m04 - CARGAR DATOS\x1b[0m                                *")
-	fmt.Println("  *  \x1b[33;1m05 - MOSTRAR TABLAS\x1b[0m                              *")
-	fmt.Println("  *  \x1b[33;1m06 - MOSTRAR CLIENTES\x1b[0m                            *")
-	fmt.Println("  *  \x1b[33;1m07 - MOSTRAR TARJETAS\x1b[0m                            *")
-	fmt.Println("  *  \x1b[33;1m08 - MOSTRAR COMERCIOS\x1b[0m                           *")
-	fmt.Println("  *  \x1b[33;1m09 - MOSTRAR COMPRAS\x1b[0m                             *")
-	fmt.Println("  *  \x1b[33;1m10 - MOSTRAR RECHAZOS\x1b[0m                            *")
-	fmt.Println("  *  \x1b[33;1m11 - REALIZAR COMPRA AUTORIZADA\x1b[0m                  *")
-	fmt.Println("  *  \x1b[33;1m12 - REALIZAR COMPRA CON TARJETA ANULADA\x1b[0m         *")
-	fmt.Println("  *  \x1b[33;1m13 - REALIZAR COMPRA CON TARJETA SUSPENDIDA\x1b[0m      *")
-	fmt.Println("  *  \x1b[33;1m14 - REALIZAR COMPRA SUPERANDO EL LIMITE\x1b[0m         *")
-	fmt.Println("  *  \x1b[33;1m15 - SALIR\x1b[0m                                       *")
-	fmt.Println("  *                                                   *")
-	fmt.Println("  * * * * * * * * * * * * * * * * * * * * * * * * * * *")
-	fmt.Println("")
-	fmt.Println("   ELIJA UNA OPCIÓN")
-	fmt.Println("----------------------------------------------------------------------------------------")
-
-
-}
-*/
 
 func mostrarError(e error) {
 	if e != nil{
