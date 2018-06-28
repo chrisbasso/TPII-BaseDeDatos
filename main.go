@@ -12,6 +12,7 @@ import (
 	"log"
 	"io/ioutil"
 	"./menu"
+	
 )
 
 
@@ -42,7 +43,7 @@ func CallClear() {
 const (
 	DB_USER = "postgres"
 	DB_PASSWORD = "postgres"
-	DB_NAME = "prueba6"
+	DB_NAME = "tarjetas"
 )
 
 func main() {
@@ -65,7 +66,7 @@ func main() {
 
 	for scanner.Scan() {
 		input := scanner.Text()
-		if input == "19" {
+		if input == "20" {
 			os.Exit(0)
 		}
 		if input == "1"{
@@ -88,6 +89,15 @@ func main() {
 		}
 		if input == "3"{
 			fmt.Println("")
+			fmt.Println(" PKs y FKs BORRADAS!")
+			_, err = db.Exec(borrarPKyFK())
+			mostrarError(err)
+			time.Sleep(2 * time.Second)
+			CallClear()
+			menu.MostrarMenu()
+		}
+		if input == "4"{
+			fmt.Println("")
 			fmt.Println(" FUNCIONES CARGADAS!")
 			_, err = db.Exec(cargarFunciones())
 			mostrarError(err)
@@ -96,7 +106,7 @@ func main() {
 			menu.MostrarMenu()
 		}
 
-		if input == "4"{
+		if input == "5"{
 			fmt.Println("")
 			fmt.Println(" DATOS CARGADOS!")
 			_, err = db.Exec(cargarDatos())
@@ -105,7 +115,7 @@ func main() {
 			CallClear()
 			menu.MostrarMenu()
 		}
-		if input == "5"{
+		if input == "6"{
 			fmt.Println("")
 			fmt.Println("TABLAS")
 			fmt.Println("")
@@ -127,7 +137,7 @@ func main() {
 			CallClear()
 			menu.MostrarMenu()
 		}
-		if input == "6"{
+		if input == "7"{
 			fmt.Println("")
 			fmt.Println("DATOS CLIENTES")
 			fmt.Println("")
@@ -152,7 +162,7 @@ func main() {
 			CallClear()
 			menu.MostrarMenu()
 		}
-		if input == "7"{
+		if input == "8"{
 			fmt.Println("")
 			fmt.Println("DATOS TARJETAS")
 			fmt.Println("")
@@ -180,7 +190,7 @@ func main() {
 			menu.MostrarMenu()
 		}
 		
-		if input == "8"{
+		if input == "9"{
 			fmt.Println("")
 			fmt.Println("DATOS COMERCIOS")
 			fmt.Println("")
@@ -206,7 +216,7 @@ func main() {
 			menu.MostrarMenu()
 		}
 		
-		if input == "9"{
+		if input == "10"{
 			fmt.Println("")
 			fmt.Println("LISTA COMPRAS")
 			fmt.Println("")
@@ -233,7 +243,7 @@ func main() {
 			menu.MostrarMenu()
 		}
 		
-		if input == "10"{
+		if input == "11"{
 			fmt.Println("")
 			fmt.Println("LISTA RECHAZOS")
 			fmt.Println("")
@@ -260,7 +270,7 @@ func main() {
 			CallClear()
 			menu.MostrarMenu()
 		}
-		if input == "11"{
+		if input == "12"{
 			fmt.Println("")
 			fmt.Println("COMPRA AUTORIZADA")
 			fmt.Println("")
@@ -270,7 +280,7 @@ func main() {
 			CallClear()
 			menu.MostrarMenu()
 		}
-		if input == "12"{
+		if input == "13"{
 			fmt.Println("")
 			fmt.Println("COMPRA CON TARJETA ANULADA")
 			fmt.Println("")
@@ -280,7 +290,7 @@ func main() {
 			CallClear()
 			menu.MostrarMenu()
 		}
-		if input == "13"{
+		if input == "14"{
 			fmt.Println("")
 			fmt.Println("COMPRA CON TARJETA SUSPENDIDA")
 			fmt.Println("")
@@ -290,7 +300,7 @@ func main() {
 			CallClear()
 			menu.MostrarMenu()
 		}
-		if input == "14"{
+		if input == "15"{
 			fmt.Println("")
 			fmt.Println("COMPRA SUPERANDO LIMITE")
 			fmt.Println("")
@@ -300,7 +310,7 @@ func main() {
 			CallClear()
 			menu.MostrarMenu()
 		}
-		if input == "15"{
+		if input == "16"{
 			fmt.Println("")
 			fmt.Println("DOS COMPRAS EN MISMO CP EN MENOS DE 1 MINUTO")
 			fmt.Println("")
@@ -316,7 +326,7 @@ func main() {
 			CallClear()
 			menu.MostrarMenu()
 		}
-		if input == "16"{
+		if input == "17"{
 			fmt.Println("")
 			fmt.Println("DOS COMPRAS EN DISTINTO CP EN MENOS DE 5 MINUTOS")
 			fmt.Println("")
@@ -329,6 +339,41 @@ func main() {
 			mostrarError(err2)
 			fmt.Println("SEGUNDA COMPRA REALIZADA")
 			time.Sleep(3 * time.Second)
+			CallClear()
+			menu.MostrarMenu()
+		}
+		if input == "18"{
+			fmt.Println("")
+			fmt.Println("ALERTAS")
+			fmt.Println("")
+			rows, err := db.Query("SELECT nroalerta,nrotarjeta,codalerta,descripcion FROM alerta;")
+			mostrarError(err)
+			defer rows.Close()
+			for rows.Next() {
+				var nroalerta string
+				var nrotarjeta string
+				var codalerta string
+				var descripcion string
+				err := rows.Scan(&nroalerta,&nrotarjeta,&codalerta,&descripcion)
+				if err != nil {
+					log.Fatal(err)
+					}
+				fmt.Println(nroalerta + " - " + nrotarjeta + " - " + codalerta + " - " + descripcion)
+				}
+			if err = rows.Err(); err != nil {
+				log.Fatal(err)
+			}
+			time.Sleep(8 * time.Second)
+			CallClear()
+			menu.MostrarMenu()
+		}
+		if input == "19"{
+			fmt.Println("")
+			fmt.Println("FACTURA GENERADA")
+			fmt.Println("")
+			_, err := db.Query(`SELECT generarFactura('27944','2018-06-25');`)
+			mostrarError(err)
+			time.Sleep(2 * time.Second)
 			CallClear()
 			menu.MostrarMenu()
 		}
@@ -357,6 +402,15 @@ func establecerPKyFK() string{
 	return ret
 
 }
+func borrarPKyFK() string{
+
+	datos, errorDeLectura := ioutil.ReadFile("DROP PK y FK.sql")
+	mostrarError(errorDeLectura)
+	ret := string(datos)
+	return ret
+
+}
+
 func cargarDatos() string{
 
 	datos, errorDeLectura := ioutil.ReadFile("datos.sql")
