@@ -1,5 +1,5 @@
-= Base de Datos I: Trabajo Práctico 1
-Basso Christian Darìo <christian.d.basso@gmail.com>; Lucas Martin Lugo <lugolucas@hotmail.com>; Silvero Enzo Francisco <silvero_enzo96@hotmail.com>
+= Base de Datos I: Trabajo Práctico 2
+Basso Christian Darìo <christian.d.basso@gmail.com>; 
 {docdate}. Daniel Rondelli (COM-01)
 :numbered:
 :source-highlighter: highlight.js
@@ -7,95 +7,19 @@ Basso Christian Darìo <christian.d.basso@gmail.com>; Lucas Martin Lugo <lugoluc
 
 == Introducción
 
-El trabajo práctico consiste en diseñar un modelo de datos relativo a operaciones de tarjetas de crédito, escribiendo los schemas de cada tabla, junto con sus PK’s y FK’s.
 
-Para realizarlo nos interesaron los datos de los clientes, de las tarjetas de crédito con sus vencimientos y límites, entre otros. Las tarjetas solo admiten compras de un solo pago, tienen consumos que surgirán a partir de las compras que se realicen en los distintos comercios.
-
-- El modelo de datos diseñado soporta los siguientes requisitos: 
-  * A partir de los datos de una compra se puede autorizar la compra o rechazarla.
-  * Para cada nuevo consumo guardara los datos de una factura.
-  * generará alertas por posibles fraudes.
 
 == Descripción
 
-Para este trabajo, se crearon las tablas:
 
-- *clientes*: Representa a las personas, con sus respectivos datos (nombre, apellido, DNI, etc.), las cuales estarán asociadas a una tarjeta o más.
-
-- *tarjetas*: Representa la tarjeta de crédito de los clientes. Se especifican su número (el cual será su Primary Key), código de seguridad, límite, vencimiento y el DNI de su propietario. Este último será un Foreign Key y estará asociado al DNI de su titular.
-
-- *comercios*: Contiene los datos de cada local donde se pueda ejecutar compras con tarjeta de crédito, con su ID como PK.
-
-- *consumos*: Se crea un consumo por cada compra del cliente en la que haya utilizado una tarjeta de crédito en un comercio. Detalla su número ID, el número de la tarjeta, la ID del comercio, el importe y la hora y fecha de la compra. Por último, un valor booleano que informa si el consumo fue pagado.
-
-- *alertas*: Guarda registro de una alerta cuando se producen consumos de manera dudosa. Guarda la ID del último consumo (siendo este su PK) y tiene un valor booleano que indica si la tarjeta fue rechazada. Una alerta se producirá bajo estas condiciones:
-  * Si una tarjeta registra dos compras en un lapso menor de un minuto en comercios distintos ubicados en el mismo código postal.
-  * Si una tarjeta registra dos compras en un lapso menor de 5 minutos en comercios con diferentes códigos postales.
-  * Si una tarjeta registra dos rechazos por exceso de límite en el mismo día. la tarjeta suspendida preventivamente.
-
-Decisiones tomadas:
-
-- Se agregó un atributo booleano a la tabla *tarjetas* que indica si se puede seguir utilizando o no, dependiendo si está vencida o suspendida.
-- En principio creamos una tabla *facturas* pero luego nos dimos cuenta que los datos de la factura se obtienen desde el consumo.
 
 == Implementación
 
-[source, sql]
-----
- 
-create table clientes(
-dni int not null, 
-nombre text not null, 
-apellido text not null,
-domicilio text not null,
-telefono int not null);
-alter table clientes add constraint cliente_pk primary key(dni);
-
-create table tarjetas(
-numero int not null,
-dni_cliente int,
-cod_seguridad int not null,
-vencimiento date not null, 
-limite int not null,
-utilizable boolean);
-alter table tarjetas add constraint tarjeta_pk primary key(numero);
-alter table tarjetas add constraint dni_cliente_fk foreign key (dni_cliente) references clientes(dni);
-
-create table comercios(
-id int not null,
-nombre text not null,
-domicilio text not null,
-cp int not null,
-telefono int not null);
-alter table comercios add constraint comercio_pk primary key(id);
-
-create table consumos(
-id int not null,
-num_tarjeta int,
-id_comercio int,
-importe decimal not null,
-fecha date, 
-hora timestamp,
-pagado boolean);
-alter table consumos add constraint consumos_pk primary key(id_consumo);
-alter table consumos add constraint num_tarjeta_fk foreign key (numero_tarjeta) references tarjetas(numero);
-alter table consumos add constraint id_comercio_fk foreign key (id_comercio) references comercios(id);
-
-
-create table alertas(
-id_consumo int,
-rechazada boolean,
-motivo text);
-alter table alertas add constraint alerta_pk primary key(id_consumo);
-alter table alertas add constraint id_consumo_fk foreign key (id_consumo) references consumos(id);
-
-
-----
 
 == Conclusiones
 
-El  trabajo práctico se desarrolló creando tablas de datos iniciales que pudiéramos prever que debían aparecer y luego corrigiéndolas,
-creando nuevas tablas o borrando alguna de ser necesario, según las indicaciones del enunciado. El resultado final es un modelo de datos
-que se ajusta a las funciones  de tarjetas de crédito.
+
+Un detalle notable entre SQL Y NOSQL es que NOSQL no se rige por la normalización como lo haciamos en SQL, por lo que la base de datos no se rige por tener los datos relacionados entre si
+Esto puede traer problema de redundancia e integridad de los datos.
 
     
