@@ -49,7 +49,7 @@ insert into tarjeta values(470171791311, 67870, '201801', '202001', '4872', 3500
 insert into tarjeta values(419694811672, 21976, '201604', '201904', '6821', 47000.00, 'vigente');
 insert into tarjeta values(436782605294, 46697, '201711', '201911', '3064', 58000.00, 'vigente');
 insert into tarjeta values(466575225837, 32736, '201612', '201912', '6760', 43000.00, 'vigente');
-insert into tarjeta values(463934309504, 66920, '201702', '202002', '6281', 57400.00, 'vigente');
+insert into tarjeta values(463934309504, 66920, '201702', '201708', '6281', 57400.00, 'expirada');
 insert into tarjeta values(481906032085, 40062, '201802', '202002', '2598', 38400.00, 'vigente');
 insert into tarjeta values(492082306601, 21390, '201704', '201904', '2984', 63200.00, 'vigente');
 insert into tarjeta values(479110600471, 13439, '201708', '201908', '6524', 34000.00, 'vigente');
@@ -57,11 +57,35 @@ insert into tarjeta values(485834874942, 36365, '201607', '201907', '1505', 5000
 insert into tarjeta values(437434819262, 97565, '201605', '201905', '9076', 48000.00, 'vigente');
 insert into tarjeta values(400877394804, 65477, '201702', '202002', '3791', 49000.00, 'vigente');
 insert into tarjeta values(488207236937, 86202, '201705', '201905', '2650', 35000.00, 'suspendida');
-insert into tarjeta values(437501035853, 27336, '201312', '201712', '8764', 38000.00, 'anulada');
+insert into tarjeta values(437501035853, 27336, '201312', '201912', '8764', 38000.00, 'anulada');
 insert into tarjeta values(498539870963, 54976, '201710', '202010', '3951', 29000.00, 'vigente');
 insert into tarjeta values(426914694871, 54976, '201611', '201911', '7035', 34900.00, 'vigente'); 
 insert into tarjeta values(457105551649, 00001, '201612', '201912', '1904', 60000.00, 'vigente'); 
 insert into tarjeta values(425311796515, 00001, '201802', '202102', '7361', 30000.00, 'vigente'); 
+
+
+insert into consumo values ('470171791311', '4872', 2563, 564.20); -- Compras Validas
+insert into consumo values ('470171791311', '4872', 2563, 1335.45);
+insert into consumo values ('470171791311', '4872', 2563, 5647.82);
+
+insert into consumo values ('492082306601', '2984', 8315, 1677.50); 
+insert into consumo values ('492082306601', '2984', 8315, 58.50);
+insert into consumo values ('492082306601', '2984', 8315, 30.00);
+insert into consumo values ('492082306601', '2984', 8315, 2560.50);
+
+insert into consumo values ('466575225837', '6760', 2415, 100.00); -- Compras validas pero que generan alerta de compra en menos de 1 min CP=
+insert into consumo values ('466575225837', '6760', 9805, 200.00);
+
+insert into consumo values ('419694811672', '6821', 2563, 1200.00); -- Compras validas pero que generan alerta de compra en menos de 5 min CP!=
+insert into consumo values ('419694811672', '6821', 8315, 500.00);
+
+insert into consumo values ('463934309504','6281', 2890, 600.00);  -- Compra con tarjeta expirada en su fecha de vencimiento
+
+insert into consumo values ('425311796515','7361', 7518, 10000.00); -- Compra hasta que supera el limite
+insert into consumo values ('425311796515','7361', 7518, 10000.00);
+insert into consumo values ('425311796515','7361', 7518, 11000.00);
+
+insert into consumo values ('453360446991', '1578', 5685, 100.00);-- Compra con codigo de seguridad invalido
 
 
 
