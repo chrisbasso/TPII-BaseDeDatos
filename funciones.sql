@@ -3,7 +3,7 @@ create or replace function autorizarCompra(numtarjeta char(12), codseguridad cha
 declare
 
     vNroTarjeta char(12);
-    vValidaHasta character(6);
+    vValidaHasta character(8);
     vCodSeguridad char(4);
     vLimiteCompra numeric(8,2);
 	vEstado character(10);
@@ -30,28 +30,10 @@ begin
         
     END IF;
 
-    IF (vEstado <> 'vigente') THEN
+    IF (vEstado = 'anulada') THEN
         
-        RAISE NOTICE 'Tarjeta no está vigente';
-        INSERT INTO rechazo (nrotarjeta,nrocomercio,fecha,monto,motivo) values (vNroTarjeta,vNroComercio,CURRENT_TIMESTAMP,montoCompra,'Tarjeta no vigente');
-        RETURN FALSE;
-
-    END IF;
-
-    IF (vCodSeguridad <> codseguridad) THEN
-
-        RAISE NOTICE 'Código de seguridad invalido';
-        INSERT INTO rechazo (nrotarjeta,nrocomercio,fecha,monto,motivo) values(vNroTarjeta,vNroComercio,CURRENT_TIMESTAMP,montoCompra,'Código de seguridad invalido'); 
-        RETURN FALSE;
-
-    END IF;
-     
-    vMontoNoPagado := (SELECT SUM(monto) FROM compra WHERE vNroTarjeta = compra.nrotarjeta AND compra.pagado = false);
-    
-    IF ((vMontoNoPagado + montoCompra) > vLimiteCompra) THEN
-        
-        RAISE NOTICE 'Supera el límite de compra';
-        INSERT INTO rechazo (nrotarjeta,nrocomercio,fecha,monto,motivo) values(vNroTarjeta,vNroComercio,CURRENT_TIMESTAMP,montoCompra,'Supera el límite de compra');
+        RAISE NOTICE 'Tarjeta está anulada';
+        INSERT INTO rechazo (nrotarjeta,nrocomercio,fecha,monto,motivo) values (vNroTarjeta,vNroComercio,CURRENT_TIMESTAMP,montoCompra,'Tarjeta anulada');
         RETURN FALSE;
 
     END IF;
@@ -63,6 +45,38 @@ begin
         RETURN FALSE;
 
     END IF;
+
+    vValidaHasta := vValidaHasta || '01';
+    
+
+    IF ((cast(vValidaHasta as date)) < CURRENT_DATE) THEN
+
+        RAISE NOTICE 'Tarjeta vencida';
+        INSERT INTO rechazo (nrotarjeta,nrocomercio,fecha,monto,motivo) values(vNroTarjeta,vNroComercio,CURRENT_TIMESTAMP,montoCompra,'Tarjeta vencida');
+        RETURN FALSE;
+
+    END IF;
+     
+
+    IF (vCodSeguridad <> codseguridad) THEN
+
+        RAISE NOTICE 'Código de seguridad invalido';
+        INSERT INTO rechazo (nrotarjeta,nrocomercio,fecha,monto,motivo) values(vNroTarjeta,vNroComercio,CURRENT_TIMESTAMP,montoCompra,'Código de seguridad invalido'); 
+        RETURN FALSE;
+
+    END IF;
+    
+    vMontoNoPagado := (SELECT SUM(monto) FROM compra WHERE vNroTarjeta = compra.nrotarjeta AND compra.pagado = false);
+    
+    IF ((montoCompra > vLimiteCompra) OR ((montoCompra + vMontoNoPagado) > vLimiteCompra)) THEN
+        
+        RAISE NOTICE 'Supera el límite de compra';
+        INSERT INTO rechazo (nrotarjeta,nrocomercio,fecha,monto,motivo) values(vNroTarjeta,vNroComercio,CURRENT_TIMESTAMP,montoCompra,'Supera el límite de compra');
+        RETURN FALSE;
+
+    END IF;
+
+   
     
     RAISE NOTICE 'Compra aceptada';
     INSERT INTO compra (nrotarjeta,nrocomercio,fecha,monto,pagado) values (vNroTarjeta,vNroComercio,CURRENT_TIMESTAMP,montoCompra,false);
@@ -168,18 +182,15 @@ create or replace function alerta_rechazo() returns trigger as $$
 
 declare
 
-    rechazoAnt record;
-
+    alertaAnt record;
 
 begin
-    
-
 	
-	insert into alerta (nrotarjeta,fecha, nrorechazo, codalerta, descripcion) values (new.nrotarjeta, new.fecha, new.nrorechazo, 0, new.motivo);
-	
-    SELECT * INTO rechazoAnt FROM rechazo
-    WHERE rechazo.nrotarjeta = new.nrotarjeta
-    AND cast(new.fecha as date) = cast(rechazo.fecha as date);
+    SELECT * INTO alertaAnt FROM alerta
+    WHERE alerta.nrotarjeta = new.nrotarjeta
+    AND cast(new.fecha as date) = cast(alerta.fecha as date)
+    AND alerta.descripcion = 'Supera el límite de compra'
+    AND new.motivo = 'Supera el límite de compra';
 
    
     IF FOUND THEN
@@ -188,11 +199,14 @@ begin
         values (new.nrotarjeta, new.fecha, new.nrorechazo, 32, 'Tarjeta suspendida por exceso de límite en el mismo día');
 
         update tarjeta set estado='suspendida' where nrotarjeta = new.nrotarjeta;
+
+        ELSE
+
+        insert into alerta (nrotarjeta,fecha, nrorechazo, codalerta, descripcion) values (new.nrotarjeta, new.fecha, new.nrorechazo, 0, new.motivo);
 	
 	END IF;
 
-
-
+    
     return new;
 
 end;
@@ -253,6 +267,28 @@ on compra
 for each row
 execute procedure alerta_compra();
 
+
+create or replace function realizarConsumosTest() returns void as $$
+
+declare
+
+    unConsumo record;
+    cur_consumos CURSOR FOR SELECT * FROM consumo;
+        
+begin
+
+    OPEN cur_consumos;
+    LOOP
+        FETCH cur_consumos INTO unConsumo;
+        EXIT WHEN NOT FOUND;
+
+        PERFORM autorizarCompra(unConsumo.nrotarjeta,unConsumo.codseguridad,unConsumo.monto, unConsumo.nrocomercio);
+
+    END LOOP;
+
+    RETURN;
+end;
+$$ language plpgsql;
 
 
 
