@@ -43,7 +43,7 @@ func CallClear() {
 const (
 	DB_USER = "postgres"
 	DB_PASSWORD = "postgres"
-	DB_NAME = "tarjetas"
+	DB_NAME = "postgres"
 )
 
 func main() {
@@ -53,6 +53,23 @@ func main() {
 	if err != nil {
 	log.Fatal(err)
 	}
+	_, err = db.Query("DROP DATABASE IF EXISTS tarjetas;")
+	mostrarError(err)
+	if err != nil {
+		log.Fatal(err)
+		}
+	_, err = db.Query("CREATE DATABASE tarjetas;")
+	mostrarError(err)
+	if err != nil {
+		log.Fatal(err)
+		}
+
+	dbinfo = fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable", DB_USER, DB_PASSWORD, "tarjetas")
+	db, err = sql.Open("postgres", dbinfo)
+	if err != nil {
+	log.Fatal(err)
+	}
+
 	defer db.Close()
 
 	time.Sleep(1 * time.Second)
@@ -60,65 +77,56 @@ func main() {
 	
 	menu.MostrarMenu()
 
-	
-
 	scanner := bufio.NewScanner(os.Stdin)
 
 	for scanner.Scan() {
 		input := scanner.Text()
-		if input == "20" {
+		if input == "21" {
 			os.Exit(0)
 		}
 		if input == "1"{
-			fmt.Println("")
-			fmt.Println(" TABLAS CREADAS!")
-			_, err = db.Exec(crearTablas())
+			fmt.Println(" \nTABLAS CREADAS!\n")
+			_, err = db.Exec(leerArchivo("tablas.sql"))
 			mostrarError(err)
-			time.Sleep(2 * time.Second)
+			time.Sleep(1 * time.Second)
 			CallClear()
 			menu.MostrarMenu()
 		}
 		if input == "2"{
-			fmt.Println("")
-			fmt.Println(" PKs y FKs ESTABLECIDAS!")
-			_, err = db.Exec(establecerPKyFK())
+			fmt.Println(" \nPKs y FKs ESTABLECIDAS!\n")
+			_, err = db.Exec(leerArchivo("PK y FK.sql"))
 			mostrarError(err)
-			time.Sleep(2 * time.Second)
+			time.Sleep(1 * time.Second)
 			CallClear()
 			menu.MostrarMenu()
 		}
 		if input == "3"{
-			fmt.Println("")
-			fmt.Println(" PKs y FKs BORRADAS!")
-			_, err = db.Exec(borrarPKyFK())
+			fmt.Println(" \nPKs y FKs BORRADAS!\n")
+			_, err = db.Exec(leerArchivo("DROP PK y FK.sql"))
 			mostrarError(err)
-			time.Sleep(2 * time.Second)
+			time.Sleep(1 * time.Second)
 			CallClear()
 			menu.MostrarMenu()
 		}
 		if input == "4"{
-			fmt.Println("")
-			fmt.Println(" FUNCIONES CARGADAS!")
-			_, err = db.Exec(cargarFunciones())
+			fmt.Println(" \nFUNCIONES CARGADAS!\n")
+			_, err = db.Exec(leerArchivo("funciones.sql"))
 			mostrarError(err)
-			time.Sleep(2 * time.Second)
+			time.Sleep(1 * time.Second)
 			CallClear()
 			menu.MostrarMenu()
 		}
 
 		if input == "5"{
-			fmt.Println("")
-			fmt.Println(" DATOS CARGADOS!")
-			_, err = db.Exec(cargarDatos())
+			fmt.Println(" \nDATOS CARGADOS!\n")
+			_, err = db.Exec(leerArchivo("datos.sql"))
 			mostrarError(err)
-			time.Sleep(2 * time.Second)
+			time.Sleep(1 * time.Second)
 			CallClear()
 			menu.MostrarMenu()
 		}
 		if input == "6"{
-			fmt.Println("")
-			fmt.Println("TABLAS")
-			fmt.Println("")
+			fmt.Println("\nTABLAS\n")
 			rows, err := db.Query("select table_name from information_schema.tables where table_schema = 'public' and table_type='BASE TABLE';")
 			mostrarError(err)
 			defer rows.Close()
@@ -138,9 +146,7 @@ func main() {
 			menu.MostrarMenu()
 		}
 		if input == "7"{
-			fmt.Println("")
-			fmt.Println("DATOS CLIENTES")
-			fmt.Println("")
+			fmt.Println("\nDATOS CLIENTES\n")
 			rows, err := db.Query("SELECT nombre,apellido,domicilio,telefono FROM cliente;")
 			mostrarError(err)
 			defer rows.Close()
@@ -163,9 +169,7 @@ func main() {
 			menu.MostrarMenu()
 		}
 		if input == "8"{
-			fmt.Println("")
-			fmt.Println("DATOS TARJETAS")
-			fmt.Println("")
+			fmt.Println("\nDATOS TARJETAS\n")
 			rows, err := db.Query("SELECT nrotarjeta,validadesde,validahasta,codseguridad,limitecompra,estado FROM tarjeta;")
 			mostrarError(err)
 			defer rows.Close()
@@ -191,9 +195,7 @@ func main() {
 		}
 		
 		if input == "9"{
-			fmt.Println("")
-			fmt.Println("DATOS COMERCIOS")
-			fmt.Println("")
+			fmt.Println("\nDATOS COMERCIOS\n")
 			rows, err := db.Query("SELECT nombre,domicilio,codigopostal,telefono FROM comercio;")
 			mostrarError(err)
 			defer rows.Close()
@@ -217,9 +219,7 @@ func main() {
 		}
 		
 		if input == "10"{
-			fmt.Println("")
-			fmt.Println("LISTA COMPRAS")
-			fmt.Println("")
+			fmt.Println("\nLISTA COMPRAS\n")
 			rows, err := db.Query("SELECT nrooperacion,nrotarjeta,nrocomercio,fecha,monto FROM compra;")
 			mostrarError(err)
 			defer rows.Close()
@@ -244,9 +244,7 @@ func main() {
 		}
 		
 		if input == "11"{
-			fmt.Println("")
-			fmt.Println("LISTA RECHAZOS")
-			fmt.Println("")
+			fmt.Println("\nLISTA RECHAZOS\n")
 			rows, err := db.Query("SELECT * FROM rechazo;")
 			mostrarError(err)
 			defer rows.Close()
@@ -266,14 +264,12 @@ func main() {
 			if err = rows.Err(); err != nil {
 				log.Fatal(err)
 			}
-			time.Sleep(5 * time.Second)
+			time.Sleep(6 * time.Second)
 			CallClear()
 			menu.MostrarMenu()
 		}
 		if input == "12"{
-			fmt.Println("")
-			fmt.Println("COMPRA AUTORIZADA")
-			fmt.Println("")
+			fmt.Println("\nCOMPRA AUTORIZADA\n")
 			_, err := db.Query(`SELECT autorizarCompra('475913199634','2516',111.00,3050);`)
 			mostrarError(err)
 			time.Sleep(2 * time.Second)
@@ -281,9 +277,7 @@ func main() {
 			menu.MostrarMenu()
 		}
 		if input == "13"{
-			fmt.Println("")
-			fmt.Println("COMPRA CON TARJETA ANULADA")
-			fmt.Println("")
+			fmt.Println("\nCOMPRA CON TARJETA ANULADA\n")
 			_, err := db.Query(`SELECT autorizarCompra('437501035853','8764',1810.00,4040);`)
 			mostrarError(err)
 			time.Sleep(2 * time.Second)
@@ -291,9 +285,7 @@ func main() {
 			menu.MostrarMenu()
 		}
 		if input == "14"{
-			fmt.Println("")
-			fmt.Println("COMPRA CON TARJETA SUSPENDIDA")
-			fmt.Println("")
+			fmt.Println("\nCOMPRA CON TARJETA SUSPENDIDA\n")
 			_, err := db.Query(`SELECT autorizarCompra('488207236937','2650',230.00,3050);`)
 			mostrarError(err)
 			time.Sleep(2 * time.Second)
@@ -301,9 +293,7 @@ func main() {
 			menu.MostrarMenu()
 		}
 		if input == "15"{
-			fmt.Println("")
-			fmt.Println("COMPRA SUPERANDO LIMITE")
-			fmt.Println("")
+			fmt.Println("\nCOMPRA SUPERANDO LIMITE\n")
 			_, err := db.Query(`SELECT autorizarCompra('485834874942','1505',60000.00,3050);`)
 			mostrarError(err)
 			time.Sleep(2 * time.Second)
@@ -311,41 +301,44 @@ func main() {
 			menu.MostrarMenu()
 		}
 		if input == "16"{
-			fmt.Println("")
-			fmt.Println("DOS COMPRAS EN MISMO CP EN MENOS DE 1 MINUTO")
-			fmt.Println("")
-			time.Sleep(2 * time.Second)
+			fmt.Println("\nDOS COMPRAS EN MISMO CP EN MENOS DE 1 MINUTO\n")
+			time.Sleep(1 * time.Second)
 			_, err := db.Query(`SELECT autorizarCompra('489419235332','5820',2000,9604);`)
 			mostrarError(err)
 			fmt.Println("PRIMERA COMPRA REALIZADA")
-			time.Sleep(3 * time.Second)
+			time.Sleep(2 * time.Second)
 			_, err2 := db.Query(`SELECT autorizarCompra('489419235332','5820',100,3050);`)
 			mostrarError(err2)
 			fmt.Println("SEGUNDA COMPRA REALIZADA")
-			time.Sleep(3 * time.Second)
+			time.Sleep(2 * time.Second)
 			CallClear()
 			menu.MostrarMenu()
 		}
 		if input == "17"{
-			fmt.Println("")
-			fmt.Println("DOS COMPRAS EN DISTINTO CP EN MENOS DE 5 MINUTOS")
-			fmt.Println("")
-			time.Sleep(2 * time.Second)
-			_, err := db.Query(`SELECT autorizarCompra('489419235332','5820',100,3050);`)
+			fmt.Println("\nDOS COMPRAS EN DISTINTO CP EN MENOS DE 5 MINUTOS\n")
+			time.Sleep(1 * time.Second)
+			_, err := db.Query(`SELECT autorizarCompra('436782605294','3064',100,2782);`)
 			mostrarError(err)
 			fmt.Println("PRIMERA COMPRA REALIZADA")
-			time.Sleep(3 * time.Second)
-			_, err2 := db.Query(`SELECT autorizarCompra('489419235332','5820',100,4040);`)
+			time.Sleep(2 * time.Second)
+			_, err2 := db.Query(`SELECT autorizarCompra('436782605294','3064',100,4040);`)
 			mostrarError(err2)
 			fmt.Println("SEGUNDA COMPRA REALIZADA")
-			time.Sleep(3 * time.Second)
+			time.Sleep(2 * time.Second)
 			CallClear()
 			menu.MostrarMenu()
 		}
 		if input == "18"{
-			fmt.Println("")
-			fmt.Println("ALERTAS")
-			fmt.Println("")
+			fmt.Println("\nCOMPRAS REALIZADAS\n")
+			time.Sleep(1 * time.Second)
+			_, err := db.Query(`SELECT realizarConsumosTest();`)
+			mostrarError(err)
+			time.Sleep(2 * time.Second)
+			CallClear()
+			menu.MostrarMenu()
+		}
+		if input == "19"{
+			fmt.Println("\nALERTAS\n")
 			rows, err := db.Query("SELECT nroalerta,nrotarjeta,codalerta,descripcion FROM alerta;")
 			mostrarError(err)
 			defer rows.Close()
@@ -367,13 +360,11 @@ func main() {
 			CallClear()
 			menu.MostrarMenu()
 		}
-		if input == "19"{
-			fmt.Println("")
-			fmt.Println("FACTURA GENERADA")
-			fmt.Println("")
-			_, err := db.Query(`SELECT generarFactura('27944','2018-06-25');`)
+		if input == "20"{
+			fmt.Println("\nFACTURA GENERADA PARA CLIENTE 21390\n")
+			_, err := db.Query(`SELECT generarFactura('21390','2018-07-01');`)
 			mostrarError(err)
-			time.Sleep(2 * time.Second)
+			time.Sleep(3 * time.Second)
 			CallClear()
 			menu.MostrarMenu()
 		}
@@ -385,48 +376,17 @@ func main() {
 	}
 }
 
-func crearTablas() string {
+func leerArchivo(archivo string) string {
 
-	datos, errorDeLectura := ioutil.ReadFile("tablas.sql")
-	mostrarError(errorDeLectura)
+	datos, err := ioutil.ReadFile(archivo)
+	if err != nil{
+		log.Fatal(err)
+	}
 	ret := string(datos)
 	return ret
 
 }
 
-func establecerPKyFK() string{
-
-	datos, errorDeLectura := ioutil.ReadFile("PK y FK.sql")
-	mostrarError(errorDeLectura)
-	ret := string(datos)
-	return ret
-
-}
-func borrarPKyFK() string{
-
-	datos, errorDeLectura := ioutil.ReadFile("DROP PK y FK.sql")
-	mostrarError(errorDeLectura)
-	ret := string(datos)
-	return ret
-
-}
-
-func cargarDatos() string{
-
-	datos, errorDeLectura := ioutil.ReadFile("datos.sql")
-	mostrarError(errorDeLectura)
-	ret := string(datos)
-	return ret
-
-}
-func cargarFunciones() string{
-
-	datos, errorDeLectura := ioutil.ReadFile("funciones.sql")
-	mostrarError(errorDeLectura)
-	ret := string(datos)
-	return ret
-
-}
 
 func mostrarError(e error) {
 	if e != nil{
