@@ -122,7 +122,7 @@ func main() {
 		input := scanner.Text()
 		if input == "5" {
 			os.Exit(0)
-		}
+		    }
 		if input == "1" {
 
 			fmt.Println(" \nCLIENTES\n")
@@ -140,11 +140,11 @@ func main() {
 			resultado, err := ReadUnique(db, "clientes", []byte(strconv.Itoa(clientes[i].Nrocliente)))
 			fmt.Printf("%s\n", resultado)
 
-			} 
+    			} 
 			time.Sleep(6 * time.Second)
 			CallClear()
 			menu.MostrarMenu()
-		}
+		    }
 		
 		if input == "2" {
 			fmt.Println("\n TARJETAS\n")
@@ -162,12 +162,12 @@ func main() {
 			resultado, err := ReadUnique(db, "tarjetas", []byte(strconv.Itoa(tarjetas[i].Nrotarjeta)))
 			fmt.Printf("%s\n", resultado)
 
-			} 
+			    } 
 
 			time.Sleep(6 * time.Second)
 			CallClear()
 			menu.MostrarMenu()
-		}
+		    }
 		if input == "3" {
 
 			fmt.Println("\nCOMERCIOS\n")
@@ -230,7 +230,7 @@ func main() {
 			time.Sleep(6 * time.Second)
 			CallClear()
 			menu.MostrarMenu()
-		}
+		    }
 		if err := scanner.Err(); err != nil {
 			fmt.Fprintln(os.Stderr, "reading standard input:", err)
 		}
