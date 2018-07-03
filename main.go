@@ -63,6 +63,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 		}
+		
+    db.Close()
 
 	dbinfo = fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable", DB_USER, DB_PASSWORD, "tarjetas")
 	db, err = sql.Open("postgres", dbinfo)
